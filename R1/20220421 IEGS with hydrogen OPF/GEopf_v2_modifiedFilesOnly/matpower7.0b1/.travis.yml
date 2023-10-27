@@ -1,0 +1,18 @@
+sudo: required
+dist: xenial
+
+language: generic
+
+install:
+- sudo apt-add-repository -y ppa:octave/stable
+- sudo apt-get update -qq
+- sudo apt-get install -qq octave liboctave-dev
+
+script:
+- octave-cli --no-gui --eval ver
+- octave-cli --no-gui --eval "install_matpower(1,1,1)";
+- octave-cli --no-gui --eval mpver
+- octave-cli --no-gui --eval "test_mptest(0,1)"
+- octave-cli --no-gui --eval "test_mips(0,1)"
+- octave-cli --no-gui --eval "test_matpower(0,1)"
+- octave-cli --no-gui --eval "test_most(0,1)"

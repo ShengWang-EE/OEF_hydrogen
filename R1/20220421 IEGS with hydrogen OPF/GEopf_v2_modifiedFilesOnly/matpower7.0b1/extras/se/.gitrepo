@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:MATPOWER/mx-se
+	branch = master
+	commit = 0ad09c7b55c5f87d79c135818eefb8dc3df33a4b
+	parent = d9e8fe129b2d518a1d02b7107e44c5fcf2dfd569
+	cmdver = 0.3.1

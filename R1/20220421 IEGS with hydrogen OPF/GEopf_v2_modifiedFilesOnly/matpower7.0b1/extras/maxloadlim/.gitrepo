@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:MATPOWER/mx-maxloadlim
+	branch = master
+	commit = 67d9d880a3d443a2e67f54702ee8fc23ed7cc3a6
+	parent = e83bf291fc6785ddb5cbd0219cb6f854358d4aa3
+	cmdver = 0.3.1

@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:MATPOWER/mips
+	branch = release
+	commit = 4e29a4830d22373b789505fead358281aaeac260
+	parent = 2bbba7c25b4fb18161f55d8b7b89d382a49e0872
+	cmdver = 0.3.1
