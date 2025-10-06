@@ -3,7 +3,7 @@ clc
 yalmip('clear')
 %% parameters
 [mpc,gtd] = case24GEv7(); 
-mpc.gen(:,10) = 0; % 最小出力为0
+mpc.gen(:,10) = 0; % min output zero
 
 %
 [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
@@ -18,10 +18,10 @@ mpc.gen(:,10) = 0; % 最小出力为0
 baseMVA = 100;
 il = find(mpc.branch(:, RATE_A) ~= 0 & mpc.branch(:, RATE_A) < 1e10);
 %
-nb   = size(mpc.bus, 1);    %% number of buses
-nGb  = size(mpc.Gbus,1); % number of gas bus
+nb   = size(mpc.bus, 1);                                                    %% number of buses
+nGb  = size(mpc.Gbus,1);                                                    % number of gas bus
 nGl = size(mpc.Gline,1);
-nGen = sum(mpc.gen(:,22)==1)+sum(mpc.gen(:,22)==0);% all gen(TFU and GFU), excluded dispatchable loads
+nGen = sum(mpc.gen(:,22)==1)+sum(mpc.gen(:,22)==0);                         % all gen(TFU and GFU), excluded dispatchable loads
 nGPP = size(mpc.gfuIndex,1);
 nGs = size(mpc.Gsou,1);
 nGasLoad = size(find(mpc.Gbus(:,3)~=0),1);
@@ -33,16 +33,16 @@ nGasType = 7; iCombustibleGas = 1:5; iNonCombustibleGas = 6:7;
 [GCVall, Mall, M_air, fsAll, aAll, R_air, T_stp, Prs_stp, Z_ng, ...
     T_gas, eta_electrolysis,eta_methanation,etaGFU] = initializeParameters();
 %
-xi = 0.1; % threshold for the security index
+xi = 0.1;                                                                   % threshold for the security index
 alpha_PHI = 1;alpha_x = 1; alpha_Qd = 1;
-lambda = 10; % coefficient for gas flow
+lambda = 10;                                                                % coefficient for gas flow
 multiplier = 2; alpha_PHI_max = 1e4; alpha_x_max = 1e4; alpha_Qd_max = 1e4;
 iterationMax = 40;
-gap = 1e-2; % optimization convergence criterion
+gap = 1e-2;                                                                 % optimization convergence criterion
 
 ob.Pg = [];
 
-% step2: 初始状态认为是天然气的混合物
+% step2: get initial results
 GEresult0 = GErunopf(mpc);
 
 %% initial value
@@ -61,7 +61,8 @@ S_ng = M_ng/M_air;
 WI_ng = GCV_ng / sqrt(S_ng);
 FS_ng = gasComposition_ng * fsAll';
 CP_ng = gasComposition_ng * aAll' / sqrt(S_ng);
-% 需要提前计算并迭代的变量：
+
+% variables that need precalculation and iteration
 S_pipeline0 = M_ng/M_air; %
 Z0 = Z_ng;
 gasComposition0 = repmat(gasComposition_ng,[nGb,1]);
@@ -73,11 +74,11 @@ gasLoad_ng = mpc.Gbus(iGasLoad,3);
 %% case settings
 % general, apply to all cases
 mpc.gencost(1:4,2:7) = 0;
-mpc.branch([28,31,32,33],6) = mpc.branch([28,31,32,33],6)/5; % 围绕着RNG的线路容量/5
+mpc.branch([28,31,32,33],6) = mpc.branch([28,31,32,33],6)/5;                % line capacity surround RNG / 5 围绕着RNG的线路容量/5
 subsidyFlag = 1;
 % alpha_PHI = 1e-2; alpha_x = 1e-2; alpha_Qd = 1e-2;
 % alpha_PHI_max = 1e3; alpha_x_max = 1e4; alpha_Qd_max = 1e4;
-% --- base case: Section VI.A and VI.B， 认为ptg连接天然气节点的编号是1，4，10，就是原case不用修改
+% --- base case: Section VI.A and VI.B， connected gas bus for ptg is 1,4,10, the original case 认为ptg连接天然气节点的编号是1，4，10，就是原case不用修改
 % --- comment 2-1: ---
 % xi = 0.3;
 % mpc.ptg(:,6) = 0; % case A: no hydrogen
@@ -130,7 +131,7 @@ subsidyFlag = 1;
 % subsidyFlag = 1;
 % case B
 % subsidyFlag = 0; 
-% case C 为啥没有风电了ptg还会出力？还是惩罚系数问题，尤其是迭代刚开始的时候要小，不能影响真正的目标函数
+% case C 
 % subsidyFlag = 0; 
 % mpc.gencost(mpc.windfarmIndex,:) = 	[2	1500	0	3	0	4.4231	395.3749];
 % mpc.branch([28,31,32,33],6) = mpc.branch([28,31,32,33],6) *5;
@@ -158,7 +159,7 @@ mpc.ptg(:,6) = 3;
 % case A: base case
 % case B:
 % mpc.branch(30,RATE_A:RATE_C) = 0;
-% case C 直接用的另一篇文章结果
+% case C 
 
 % case D: same as case A
 % case E:
@@ -258,7 +259,7 @@ nodalGasFlowBalanceCons = [
 PTGcons = [
     ( Qptg(:,1) * 1e6/24/3600 *GCVall(1) / eta_methanation + Qptg(:,2) * 1e6/24/3600 * GCVall(5) ...
         ) /1e6 == Pptg*baseMVA / eta_electrolysis; % w
-    0 <= Pptg*baseMVA / eta_electrolysis <= QptgMax_hydrogen /24/3600 * GCVall(5); % 如果全用来制氢，可制备xx
+    0 <= Pptg*baseMVA / eta_electrolysis <= QptgMax_hydrogen /24/3600 * GCVall(5); 
     0 <= Qptg;
     ];
 % gpp
@@ -272,13 +273,13 @@ electricityCons = [
     consfcn_electricPowerBalance(Va,Pg,Pptg,mpc) == 0;
     consfcn_electricBranchFlow(Va, mpc, il) <= 0;
     Pgmin <= Pg <= Pgmax;
-    Va(refs) == 0; % 除了slackbus外，其他相角都没约束。但是一些solver在处理inf的上下限的时候有问题
+    Va(refs) == 0; 
     ]:'electricityCons';
 % wobbe index
 GCV_nodal = gasComposition * GCVall';
 S_nodal = gasComposition * Mall' / M_air;
 sqrtS = 0.5 * (S_nodal/sqrt(S_ng) + sqrt(S_ng));
-WI_nodal = GCV_nodal ./ sqrtS; % 如果不能自动转化，那就手动化一下
+WI_nodal = GCV_nodal ./ sqrtS;                                              % if can't be auto converted, then manually converted如果不能自动转化，那就手动化一下
 WobbeIndexCons = [
     (1-xi) * WI_ng * sqrtS/1e6 <= GCV_nodal/1e6 <= (1+xi) * WI_ng * sqrtS/1e6
     ]:'WobbeIndexCons';
@@ -288,7 +289,7 @@ FScons = [
     (1-xi) * FS_ng <= FSnodal <= (1+xi) * FS_ng;
     ]:'FScons';
 % combustion potential
-CPnodal = gasComposition * aAll' ./ sqrtS; % 同理，如果不能自动转化，那就手动化一下
+CPnodal = gasComposition * aAll' ./ sqrtS; 
 CPcons = [
     (1-xi) * CP_ng * sqrtS <= gasComposition * aAll' <= (1+xi) * CP_ng * sqrtS;
     ]:'CPcons';
@@ -434,7 +435,7 @@ ob.Pg = [ob.Pg, Pg];
 %% update S and Z
 
 S_pipeline0 = ( (1+gamma).*S_nodal(FB) + (1-gamma).*S_nodal(TB) ) / 2;
-Z0 = Z_ng; % 暂时认为Z不变
+Z0 = Z_ng; % consider Z is the same
 QptgInbus = CgsPTG * sum(Qptg,2);
 W0 = nodalGasInjection(PGs,QptgInbus,gamma,gasFlow_sum,mpc,nGs,nGb,nGl);
 for r = 1:nGasType
